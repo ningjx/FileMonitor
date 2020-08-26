@@ -44,13 +44,12 @@ namespace FileMonitor
                     try
                     {
                         watcher = new FileSystemWatcher(item.Key);
-                        watcher.NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName;
+                        watcher.NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.CreationTime | NotifyFilters.Size;
                         watcher.Filter = "*";
-                        watcher.EnableRaisingEvents = true;
                         watcher.Changed += Watcher_Changed;
                         watcher.Renamed += Watcher_Changed;
                         Watchers.Add(watcher);
-
+                        watcher.EnableRaisingEvents = true;
                     }
                     catch (Exception ex)
                     {
@@ -89,7 +88,7 @@ namespace FileMonitor
                 var needBackup = originFiles;//.Where(t => !targetFileNames.Contains(t.Name));
                 foreach (var file in needBackup)
                 {
-                    file.CopyTo(targetDicPath + $@"\{file.Name}",true);
+                    file.CopyTo(targetDicPath + $@"\【{DateTime.Now:yyyyMMddhhmmss}】{file.Name}", true);
                 }
             }
             catch (Exception ex)
