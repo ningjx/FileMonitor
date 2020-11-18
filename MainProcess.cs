@@ -3,11 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using Timer = System.Timers.Timer;
 
 namespace FileMonitor
 {
@@ -24,8 +21,12 @@ namespace FileMonitor
                 Config = JsonConvert.DeserializeObject<Config>(configStr);
         }
 
-        public static void SaveConfig()
+        public static void SaveConfig(List<Form> forms)
         {
+            foreach (var form in forms)
+            {
+                Config.WindowPos[form.Name] = new Pos(form.Top, form.Left, form.Height, form.Width);
+            }
             FileHelper.Write(Config.ConfigPath, JsonConvert.SerializeObject(Config));
         }
 

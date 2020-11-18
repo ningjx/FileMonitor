@@ -1,12 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace FileMonitor
@@ -16,21 +9,20 @@ namespace FileMonitor
         public MainForm()
         {
             InitializeComponent();
+            Program.FormsContainer.Add(this);
         }
 
         private void Form1_Load(object sender, EventArgs e)
         {
             Icon = notifyIcon1.Icon = Resource.icon;
-            try
+
+            if (MainProcess.Config.WindowPos.ContainsKey(Name))
             {
-                string s = File.ReadAllText("position.ini");
-                int[] position = s.Split(',').Select(x => int.Parse(x)).ToArray();
-                Top = position[0];
-                Left = position[1];
-                Height = position[2];
-                Width = position[3];
+                Top = MainProcess.Config.WindowPos[Name].Top;
+                Left = MainProcess.Config.WindowPos[Name].Left;
+                Height = MainProcess.Config.WindowPos[Name].Height;
+                Width = MainProcess.Config.WindowPos[Name].Width;
             }
-            catch { }
 
             checkBox1.Checked = MainProcess.Config.AutoRun;
             textBox1.Text = MainProcess.Config?.FilePaths?.FirstOrDefault().Key ?? "源文件夹";
@@ -39,7 +31,7 @@ namespace FileMonitor
             {
                 MainProcess.InitWatchers();
                 WindowState = FormWindowState.Minimized;
-                notifyIcon1.ShowBalloonTip(5000,"存档监控","已经在监控游戏存档了",ToolTipIcon.Info);
+                notifyIcon1.ShowBalloonTip(5000, "存档监控", "已经在监控游戏存档了", ToolTipIcon.Info);
             }
 
             if (MainProcess.Run)
@@ -48,22 +40,12 @@ namespace FileMonitor
             }
         }
 
-        private void textBox1_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-
         private void textBox1_Click(object sender, EventArgs e)
         {
             folderBrowserDialog1.Description = "选择游戏存档所在的文件夹";
             folderBrowserDialog1.ShowDialog();
             textBox1.Text = folderBrowserDialog1.SelectedPath;
             ChangePathConfig();
-        }
-
-        private void textBox2_TextChanged(object sender, EventArgs e)
-        {
-
         }
 
         private void textBox2_Click(object sender, EventArgs e)
@@ -92,7 +74,6 @@ namespace FileMonitor
             //    File.Delete(StartupPath + @"\FileMonitor.exe.lnk");
             //}
             MainProcess.Config.AutoRun = checkBox1.Checked;
-            MainProcess.SaveConfig();
         }
 
         private void ChangePathConfig()
@@ -104,7 +85,6 @@ namespace FileMonitor
                 else
                     MainProcess.Config.FilePaths.Add(textBox1.Text, textBox2.Text);
             }
-            MainProcess.SaveConfig();
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -119,12 +99,6 @@ namespace FileMonitor
                 MainProcess.InitWatchers();
                 button1.Text = "停下";
             }
-        }
-
-        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            string position = string.Format("{0},{1},{2},{3}", Top, Left, Height, Width);
-            System.IO.File.WriteAllText("position.ini", position);
         }
 
         private void MainForm_SizeChanged(object sender, EventArgs e)

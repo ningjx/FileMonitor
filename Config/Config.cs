@@ -1,14 +1,17 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
 
 namespace FileMonitor
 {
     public class Config
     {
+        /// <summary>
+        /// 窗体位置
+        /// </summary>
+        [JsonProperty("窗体位置")]
+        public WindowPosition WindowPos { get; set; } = new WindowPosition();
+
         /// <summary>
         /// 刷新频率（秒）
         /// </summary>
@@ -19,7 +22,7 @@ namespace FileMonitor
         /// 配置文件路径
         /// </summary>
         [JsonProperty("配置文件路径（不可修改）")]
-        public string[] ConfigPath = new string[] { "Config.json" };
+        public string[] ConfigPath = new string[] { Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "FileMonitor", "Config.json" };
 
         /// <summary>
         /// 文件路径和对应的备份文件夹路径
@@ -32,5 +35,37 @@ namespace FileMonitor
         /// </summary>
         [JsonProperty("开机自动运行")]
         public bool AutoRun = false;
+    }
+
+    public class WindowPosition : Dictionary<string, Pos>
+    {
+        public new Pos this[string index]
+        {
+            get
+            {
+                TryGetValue(index, out Pos pos);
+                return pos;
+            }
+            set
+            {
+                if (ContainsKey(index))
+                    base[index] = value;
+                else
+                    Add(index, value);
+            }
+        }
+    }
+
+    public class Pos
+    {
+        public Pos(int top, int left, int height, int width)
+        {
+            Top = top; Left = left; Height = height; Width = width;
+        }
+
+        public int Top;
+        public int Left;
+        public int Height;
+        public int Width;
     }
 }

@@ -46,7 +46,6 @@
             this.textBox1.TabIndex = 0;
             this.textBox1.Text = "源文件目录";
             this.textBox1.Click += new System.EventHandler(this.textBox1_Click);
-            this.textBox1.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
             // 
             // textBox2
             // 
@@ -56,7 +55,6 @@
             this.textBox2.TabIndex = 1;
             this.textBox2.Text = "备份文件目录";
             this.textBox2.Click += new System.EventHandler(this.textBox2_Click);
-            this.textBox2.TextChanged += new System.EventHandler(this.textBox2_TextChanged);
             // 
             // checkBox1
             // 
@@ -99,7 +97,6 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "MainForm";
             this.Text = "游戏存档监视器";
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
             this.Load += new System.EventHandler(this.Form1_Load);
             this.SizeChanged += new System.EventHandler(this.MainForm_SizeChanged);
             this.ResumeLayout(false);
