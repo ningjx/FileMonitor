@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows.Forms;
 
@@ -10,6 +11,8 @@ namespace FileMonitor
 {
     public static class MainProcess
     {
+        public static Regex PathRegex = new Regex(@"^[A-Z]:\\(.+?\\)*.*$");
+
         public static Config Config = new Config();
         public static bool Run = false;
 
@@ -17,8 +20,12 @@ namespace FileMonitor
         static MainProcess()
         {
             var configStr = FileHelper.Read(Config.ConfigPath);
-            if (!string.IsNullOrEmpty(configStr))
-                Config = JsonConvert.DeserializeObject<Config>(configStr);
+            try
+            {
+                if (!string.IsNullOrEmpty(configStr))
+                    Config = JsonConvert.DeserializeObject<Config>(configStr);
+            }
+            catch { }
         }
 
         public static void SaveConfig(List<Form> forms)
@@ -39,12 +46,15 @@ namespace FileMonitor
             //为设置的路径初始化监视器
             if (Config?.FilePaths?.Count != 0)
             {
-                foreach (var item in Config.FilePaths)
+                //foreach (var item in Config.FilePaths)
+                //{
+                var item = Config.FilePaths.LastOrDefault();
+                if (item.OriginPath != null && PathRegex.IsMatch(item.OriginPath) && PathRegex.IsMatch(item.BackupPath))
                 {
                     FileSystemWatcher watcher;
                     try
                     {
-                        watcher = new FileSystemWatcher(item.Key);
+                        watcher = new FileSystemWatcher(item.OriginPath);
                         watcher.NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.CreationTime | NotifyFilters.Size;
                         watcher.Filter = "*";
                         watcher.Changed += Watcher_Changed;
@@ -57,6 +67,8 @@ namespace FileMonitor
                         new string[] { "Log.json" }.Write_Append(JsonConvert.SerializeObject(ex));
                     }
                 }
+
+                //}
             }
             Run = true;
         }
@@ -78,7 +90,7 @@ namespace FileMonitor
             {
                 Thread.Sleep(100);
                 var originDic = e.FullPath.Replace($@"\{e.Name}", "");
-                string targetDicPath = Config.FilePaths[originDic];//目标备份文件夹
+                string targetDicPath = Config.FilePaths.First(t => t.OriginPath == originDic).BackupPath;//目标备份文件夹
 
                 DirectoryInfo originRoot = new DirectoryInfo(originDic);
                 FileInfo[] originFiles = originRoot.GetFiles();
@@ -94,7 +106,7 @@ namespace FileMonitor
             }
             catch (Exception ex)
             {
-                new string[] { "Log.json" }.Write_Append(JsonConvert.SerializeObject(ex));
+                new string[] { Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "FileMonitor", "Log.json" }.Write_Append(JsonConvert.SerializeObject(ex));
             }
         }
     }

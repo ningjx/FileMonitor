@@ -28,7 +28,7 @@ namespace FileMonitor
         /// 文件路径和对应的备份文件夹路径
         /// </summary>
         [JsonProperty("监视文件路径和对应的备份文件夹路径")]
-        public Dictionary<string, string> FilePaths = new Dictionary<string, string>();
+        public List<PathItem> FilePaths { get; set; } = new List<PathItem>();
 
         /// <summary>
         /// 开机自动运行
@@ -67,5 +67,13 @@ namespace FileMonitor
         public int Left;
         public int Height;
         public int Width;
+    }
+
+    public class PathItem
+    {
+        public string OriginPath { get; set; }
+        public string BackupPath { get; set; }
+
+        public string Delete { get; set; } = "X";
     }
 }

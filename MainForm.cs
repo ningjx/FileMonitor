@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
 namespace FileMonitor
 {
     public partial class MainForm : Form
     {
+        private readonly Regex PathRegex = new Regex(@"^[A-Z]:\\(.+?\\)*.*$");
         public MainForm()
         {
             InitializeComponent();
@@ -25,14 +27,20 @@ namespace FileMonitor
             }
 
             checkBox1.Checked = MainProcess.Config.AutoRun;
-            textBox1.Text = MainProcess.Config?.FilePaths?.FirstOrDefault().Key ?? "源文件夹";
-            textBox2.Text = MainProcess.Config?.FilePaths?.FirstOrDefault().Value ?? "备份文件夹";
+            textBox1.Text = MainProcess.Config.FilePaths.FirstOrDefault()?.OriginPath ?? "源文件夹";
+            textBox2.Text = MainProcess.Config.FilePaths.FirstOrDefault()?.BackupPath ?? "备份文件夹";
             if (MainProcess.Config.AutoRun)
             {
                 MainProcess.InitWatchers();
                 WindowState = FormWindowState.Minimized;
                 notifyIcon1.ShowBalloonTip(5000, "存档监控", "已经在监控游戏存档了", ToolTipIcon.Info);
             }
+
+            MainProcess.Config.FilePaths.Add(new PathItem());
+            MainProcess.Config.FilePaths.Add(new PathItem());
+
+            //dataGridView1.RowHeadersVisible = false;
+            //dataGridView1.DataSource = MainProcess.Config.FilePaths;
 
             if (MainProcess.Run)
             {
@@ -43,16 +51,16 @@ namespace FileMonitor
         private void textBox1_Click(object sender, EventArgs e)
         {
             folderBrowserDialog1.Description = "选择游戏存档所在的文件夹";
-            folderBrowserDialog1.ShowDialog();
-            textBox1.Text = folderBrowserDialog1.SelectedPath;
+            if (folderBrowserDialog1.ShowDialog() == DialogResult.OK)
+                textBox1.Text = folderBrowserDialog1.SelectedPath;
             ChangePathConfig();
         }
 
         private void textBox2_Click(object sender, EventArgs e)
         {
             folderBrowserDialog1.Description = "选择备份到指定文件夹";
-            folderBrowserDialog1.ShowDialog();
-            textBox2.Text = folderBrowserDialog1.SelectedPath;
+            if (folderBrowserDialog1.ShowDialog() == DialogResult.OK)
+                textBox2.Text = folderBrowserDialog1.SelectedPath;
             ChangePathConfig();
         }
 
@@ -78,12 +86,12 @@ namespace FileMonitor
 
         private void ChangePathConfig()
         {
-            if (!string.IsNullOrEmpty(textBox1.Text) && !string.IsNullOrEmpty(textBox2.Text))
+            if (PathRegex.IsMatch(textBox1.Text) && PathRegex.IsMatch(textBox2.Text))
             {
-                if (MainProcess.Config.FilePaths.ContainsKey(textBox1.Text))
-                    MainProcess.Config.FilePaths[textBox1.Text] = textBox2.Text;
+                if (MainProcess.Config.FilePaths.Exists(t => t.OriginPath == textBox1.Text))
+                    MainProcess.Config.FilePaths.First(t => t.OriginPath == textBox1.Text).BackupPath = textBox2.Text;
                 else
-                    MainProcess.Config.FilePaths.Add(textBox1.Text, textBox2.Text);
+                    MainProcess.Config.FilePaths.Add(new PathItem { OriginPath = textBox1.Text, BackupPath = textBox2.Text });
             }
         }
 
@@ -92,12 +100,10 @@ namespace FileMonitor
             if (MainProcess.Run)
             {
                 MainProcess.Stop();
-                button1.Text = "走你";
             }
             else
             {
                 MainProcess.InitWatchers();
-                button1.Text = "停下";
             }
         }
 
@@ -135,6 +141,12 @@ namespace FileMonitor
                 //托盘区图标隐藏 
                 //notifyIcon1.Visible = false;
             }
+        }
+
+        private void dataGridView1_CellClick_1(object sender, DataGridViewCellEventArgs e)
+        {
+            //if (folderBrowserDialog1.ShowDialog() == DialogResult.OK)
+                //dataGridView1[e.ColumnIndex, e.RowIndex].Value = folderBrowserDialog1.SelectedPath;
         }
     }
 }
