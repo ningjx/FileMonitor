@@ -27,13 +27,14 @@ namespace FileMonitor
                 Height = MainProcess.Config.WindowPos[Name].Height;
                 Width = MainProcess.Config.WindowPos[Name].Width;
             }
-            MainProcess.InitWatchers();
+
             checkBox1.Checked = MainProcess.Config.AutoRun;
             if (MainProcess.Config.AutoRun)
             {
                 WindowState = FormWindowState.Minimized;
                 notifyIcon1.ShowBalloonTip(5000, "存档监控", "已经在监控游戏存档了", ToolTipIcon.Info);
             }
+
             dataGridView1.DataSource = MainProcess.Config.FilePaths;
             dataGridView1.DefaultCellStyle.SelectionBackColor = Color.White;
             dataGridView1.DefaultCellStyle.SelectionForeColor = Color.Black;
