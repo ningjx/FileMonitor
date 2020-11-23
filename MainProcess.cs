@@ -14,7 +14,6 @@ namespace FileMonitor
         public static Regex PathRegex = new Regex(@"^[A-Z]:\\(.+?\\)*.*$");
 
         public static Config Config = new Config();
-        public static bool Run = false;
 
         private static List<FileSystemWatcher> Watchers = new List<FileSystemWatcher>();
         static MainProcess()
@@ -46,37 +45,35 @@ namespace FileMonitor
             //为设置的路径初始化监视器
             if (Config?.FilePaths?.Count != 0)
             {
-                //foreach (var item in Config.FilePaths)
-                //{
-                var item = Config.FilePaths.LastOrDefault();
-                if (item.OriginPath != null && PathRegex.IsMatch(item.OriginPath) && PathRegex.IsMatch(item.BackupPath))
+                foreach (var item in Config.FilePaths)
                 {
-                    FileSystemWatcher watcher;
-                    try
+                    if (item.Started && PathRegex.IsMatch(item.OriginPath) && PathRegex.IsMatch(item.BackupPath))
                     {
-                        watcher = new FileSystemWatcher(item.OriginPath);
-                        watcher.NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.CreationTime | NotifyFilters.Size;
-                        watcher.Filter = "*";
-                        watcher.Changed += Watcher_Changed;
-                        watcher.Renamed += Watcher_Changed;
-                        Watchers.Add(watcher);
-                        watcher.EnableRaisingEvents = true;
+                        FileSystemWatcher watcher;
+                        try
+                        {
+                            watcher = new FileSystemWatcher(item.OriginPath)
+                            {
+                                NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.CreationTime | NotifyFilters.Size,
+                                Filter = "*"
+                            };
+                            watcher.Changed += Watcher_Changed;
+                            watcher.Renamed += Watcher_Changed;
+                            Watchers.Add(watcher);
+                            watcher.EnableRaisingEvents = true;
+                        }
+                        catch (Exception ex)
+                        {
+                            new string[] { Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "FileMonitor", "Log.json" }.Write_Append(JsonConvert.SerializeObject(ex));
+                            item.Started = false;
+                        }
                     }
-                    catch (Exception ex)
+                    else
                     {
-                        new string[] { "Log.json" }.Write_Append(JsonConvert.SerializeObject(ex));
+                        item.Started = false;
                     }
                 }
-
-                //}
             }
-            Run = true;
-        }
-
-        public static void Stop()
-        {
-            Watchers.ForEach(t => t.Dispose());
-            Run = false;
         }
 
         /// <summary>

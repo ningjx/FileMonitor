@@ -123,7 +123,6 @@
     </EmbeddedResource>
     <None Include="packages.config" />
     <None Include="Properties\app.manifest" />
-    <None Include="Properties\DataSources\Config.datasource" />
     <None Include="Properties\DataSources\PathItem.datasource" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -153,6 +152,7 @@
   <ItemGroup>
     <None Include="icon.ico" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="packages\Fody.6.0.0\build\Fody.targets" Condition="Exists('packages\Fody.6.0.0\build\Fody.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

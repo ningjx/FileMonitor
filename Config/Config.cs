@@ -73,7 +73,6 @@ namespace FileMonitor
     {
         public string OriginPath { get; set; }
         public string BackupPath { get; set; }
-
-        public string Delete { get; set; } = "X";
+        public bool Started { get; set; }
     }
 }

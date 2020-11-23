@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
@@ -25,43 +27,16 @@ namespace FileMonitor
                 Height = MainProcess.Config.WindowPos[Name].Height;
                 Width = MainProcess.Config.WindowPos[Name].Width;
             }
-
+            MainProcess.InitWatchers();
             checkBox1.Checked = MainProcess.Config.AutoRun;
-            textBox1.Text = MainProcess.Config.FilePaths.FirstOrDefault()?.OriginPath ?? "源文件夹";
-            textBox2.Text = MainProcess.Config.FilePaths.FirstOrDefault()?.BackupPath ?? "备份文件夹";
             if (MainProcess.Config.AutoRun)
             {
-                MainProcess.InitWatchers();
                 WindowState = FormWindowState.Minimized;
                 notifyIcon1.ShowBalloonTip(5000, "存档监控", "已经在监控游戏存档了", ToolTipIcon.Info);
             }
-
-            MainProcess.Config.FilePaths.Add(new PathItem());
-            MainProcess.Config.FilePaths.Add(new PathItem());
-
-            //dataGridView1.RowHeadersVisible = false;
-            //dataGridView1.DataSource = MainProcess.Config.FilePaths;
-
-            if (MainProcess.Run)
-            {
-                button1.Text = "停下";
-            }
-        }
-
-        private void textBox1_Click(object sender, EventArgs e)
-        {
-            folderBrowserDialog1.Description = "选择游戏存档所在的文件夹";
-            if (folderBrowserDialog1.ShowDialog() == DialogResult.OK)
-                textBox1.Text = folderBrowserDialog1.SelectedPath;
-            ChangePathConfig();
-        }
-
-        private void textBox2_Click(object sender, EventArgs e)
-        {
-            folderBrowserDialog1.Description = "选择备份到指定文件夹";
-            if (folderBrowserDialog1.ShowDialog() == DialogResult.OK)
-                textBox2.Text = folderBrowserDialog1.SelectedPath;
-            ChangePathConfig();
+            dataGridView1.DataSource = MainProcess.Config.FilePaths;
+            dataGridView1.DefaultCellStyle.SelectionBackColor = Color.White;
+            dataGridView1.DefaultCellStyle.SelectionForeColor = Color.Black;
         }
 
         private void checkBox1_CheckedChanged(object sender, EventArgs e)
@@ -82,29 +57,6 @@ namespace FileMonitor
             //    File.Delete(StartupPath + @"\FileMonitor.exe.lnk");
             //}
             MainProcess.Config.AutoRun = checkBox1.Checked;
-        }
-
-        private void ChangePathConfig()
-        {
-            if (PathRegex.IsMatch(textBox1.Text) && PathRegex.IsMatch(textBox2.Text))
-            {
-                if (MainProcess.Config.FilePaths.Exists(t => t.OriginPath == textBox1.Text))
-                    MainProcess.Config.FilePaths.First(t => t.OriginPath == textBox1.Text).BackupPath = textBox2.Text;
-                else
-                    MainProcess.Config.FilePaths.Add(new PathItem { OriginPath = textBox1.Text, BackupPath = textBox2.Text });
-            }
-        }
-
-        private void button1_Click(object sender, EventArgs e)
-        {
-            if (MainProcess.Run)
-            {
-                MainProcess.Stop();
-            }
-            else
-            {
-                MainProcess.InitWatchers();
-            }
         }
 
         private void MainForm_SizeChanged(object sender, EventArgs e)
@@ -143,10 +95,69 @@ namespace FileMonitor
             }
         }
 
-        private void dataGridView1_CellClick_1(object sender, DataGridViewCellEventArgs e)
+        private void dataGridView1_CellMouseClick(object sender, DataGridViewCellMouseEventArgs e)
         {
-            //if (folderBrowserDialog1.ShowDialog() == DialogResult.OK)
-                //dataGridView1[e.ColumnIndex, e.RowIndex].Value = folderBrowserDialog1.SelectedPath;
+            if (e.Button == MouseButtons.Right)//显示右键菜单
+            {
+                dataGridView1.ClearSelection();
+                dataGridView1.Rows[e.RowIndex].Selected = true;
+                dataGridView1.CurrentCell = dataGridView1.Rows[e.RowIndex].Cells[e.ColumnIndex];
+                contextMenuStrip1.Show(MousePosition.X, MousePosition.Y);
+            }
+            else if (e.Button == MouseButtons.Left)
+            {
+                if (e.ColumnIndex != 0)
+                {
+                    if (folderBrowserDialog1.ShowDialog() == DialogResult.OK)
+                        dataGridView1[e.ColumnIndex, e.RowIndex].Value = folderBrowserDialog1.SelectedPath;
+                }
+            }
+        }
+
+        private void contextMenuStrip1_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        {
+            if (e.ClickedItem.Name == "DeleteItem" && dataGridView1.SelectedRows.Count > 0)
+            {
+                var selectIndex = dataGridView1.SelectedRows[0].Index;
+                MainProcess.Config.FilePaths.RemoveAt(selectIndex);
+                RefreshGridView();
+            }
+        }
+
+        private void RefreshGridView()
+        {
+            dataGridView1.DataSource = null;
+            dataGridView1.DataSource = MainProcess.Config.FilePaths;
+        }
+
+        private void dataGridView1_CellValueChanged(object sender, DataGridViewCellEventArgs e)
+        {
+
+        }
+
+        private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.ColumnIndex == 0 && e.RowIndex != -1)
+            {
+                var item = MainProcess.Config.FilePaths[e.RowIndex];
+
+                if (item.Started)
+                    item.Started = false;
+                else
+                {
+                    if (PathRegex.IsMatch(item.OriginPath ?? "") && PathRegex.IsMatch(item.BackupPath ?? ""))
+                        item.Started = true;
+                    else
+                    {
+                        MessageBox.Show("请选择正确的原路径和备份路径");
+                        return;
+                    }
+                }
+                RefreshGridView();
+            }
+
+            //刷新监控
+            MainProcess.InitWatchers();
         }
     }
 }
