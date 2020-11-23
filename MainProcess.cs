@@ -47,6 +47,8 @@ namespace FileMonitor
             {
                 foreach (var item in Config.FilePaths)
                 {
+                    if (item.OriginPath == null || item.BackupPath == null)
+                        continue;
                     if (item.Started && PathRegex.IsMatch(item.OriginPath) && PathRegex.IsMatch(item.BackupPath))
                     {
                         FileSystemWatcher watcher;

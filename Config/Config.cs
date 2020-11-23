@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace FileMonitor
 {
@@ -28,13 +29,34 @@ namespace FileMonitor
         /// 文件路径和对应的备份文件夹路径
         /// </summary>
         [JsonProperty("监视文件路径和对应的备份文件夹路径")]
-        public List<PathItem> FilePaths { get; set; } = new List<PathItem>();
+        public List<PathItem> FilePaths
+        {
+            get
+            {
+                if (_Items.Count(t => t.OriginPath + t.BackupPath == string.Empty) > 1)
+                    _Items.RemoveAll(t => t.OriginPath + t.BackupPath == string.Empty);
+
+                if (!_Items.Exists(t => t.OriginPath + t.BackupPath == string.Empty))
+                    _Items.Add(new PathItem());
+
+                return _Items;
+            }
+            set
+            {
+                if (!value.Exists(t => t.OriginPath + t.BackupPath == string.Empty))
+                    value.Add(new PathItem());
+                _Items = value;
+            }
+        }
 
         /// <summary>
         /// 开机自动运行
         /// </summary>
         [JsonProperty("开机自动运行")]
         public bool AutoRun = false;
+
+        [JsonIgnore]
+        private List<PathItem> _Items = new List<PathItem>();
     }
 
     public class WindowPosition : Dictionary<string, Pos>

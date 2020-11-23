@@ -110,11 +110,20 @@ namespace FileMonitor
                 if (e.ColumnIndex != 0)
                 {
                     if (folderBrowserDialog1.ShowDialog() == DialogResult.OK)
+                    {
                         dataGridView1[e.ColumnIndex, e.RowIndex].Value = folderBrowserDialog1.SelectedPath;
+                        MainProcess.Config.FilePaths = (List<PathItem>)dataGridView1.DataSource;
+                        RefreshGridView();
+                    }
                 }
             }
         }
 
+        /// <summary>
+        /// 响应右键的删除事件
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void contextMenuStrip1_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
         {
             if (e.ClickedItem.Name == "DeleteItem" && dataGridView1.SelectedRows.Count > 0)
@@ -131,18 +140,13 @@ namespace FileMonitor
             dataGridView1.DataSource = MainProcess.Config.FilePaths;
         }
 
-        private void dataGridView1_CellValueChanged(object sender, DataGridViewCellEventArgs e)
-        {
-
-        }
-
         private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
             if (e.ColumnIndex == 0 && e.RowIndex != -1)
             {
                 var item = MainProcess.Config.FilePaths[e.RowIndex];
-
-                if (item.Started)
+                var value = (bool)dataGridView1.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
+                if (value)
                     item.Started = false;
                 else
                 {
@@ -151,13 +155,15 @@ namespace FileMonitor
                     else
                     {
                         MessageBox.Show("请选择正确的原路径和备份路径");
-                        return;
                     }
                 }
+
                 RefreshGridView();
             }
+        }
 
-            //刷新监控
+        private void dataGridView1_CellValueChanged(object sender, DataGridViewCellEventArgs e)
+        {
             MainProcess.InitWatchers();
         }
     }

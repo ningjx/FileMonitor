@@ -34,9 +34,9 @@
             this.checkBox1 = new System.Windows.Forms.CheckBox();
             this.notifyIcon1 = new System.Windows.Forms.NotifyIcon(this.components);
             this.dataGridView1 = new System.Windows.Forms.DataGridView();
-            this.Started = new System.Windows.Forms.DataGridViewCheckBoxColumn();
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.DeleteItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.Started = new System.Windows.Forms.DataGridViewCheckBoxColumn();
             this.originPathDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.backupPathDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.pathItemBindingSource1 = new System.Windows.Forms.BindingSource(this.components);
@@ -87,14 +87,6 @@
             this.dataGridView1.CellMouseClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.dataGridView1_CellMouseClick);
             this.dataGridView1.CellValueChanged += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView1_CellValueChanged);
             // 
-            // Started
-            // 
-            this.Started.DataPropertyName = "Started";
-            this.Started.FillWeight = 50F;
-            this.Started.HeaderText = "已监控";
-            this.Started.Name = "Started";
-            this.Started.Width = 50;
-            // 
             // contextMenuStrip1
             // 
             this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -108,6 +100,16 @@
             this.DeleteItem.Name = "DeleteItem";
             this.DeleteItem.Size = new System.Drawing.Size(124, 22);
             this.DeleteItem.Text = "删除该项";
+            // 
+            // Started
+            // 
+            this.Started.DataPropertyName = "Started";
+            this.Started.FalseValue = "false";
+            this.Started.FillWeight = 50F;
+            this.Started.HeaderText = "已监控";
+            this.Started.Name = "Started";
+            this.Started.TrueValue = "true";
+            this.Started.Width = 50;
             // 
             // originPathDataGridViewTextBoxColumn
             // 
@@ -164,10 +166,10 @@
         private System.Windows.Forms.BindingSource pathItemBindingSource;
         private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
         private System.Windows.Forms.ToolStripMenuItem DeleteItem;
+        private System.Windows.Forms.BindingSource pathItemBindingSource1;
         private System.Windows.Forms.DataGridViewCheckBoxColumn Started;
         private System.Windows.Forms.DataGridViewTextBoxColumn originPathDataGridViewTextBoxColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn backupPathDataGridViewTextBoxColumn;
-        private System.Windows.Forms.BindingSource pathItemBindingSource1;
     }
 }
 
