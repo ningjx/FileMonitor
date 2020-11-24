@@ -122,7 +122,7 @@ namespace FileMonitor
                                 return;
                             }
                         }
-                        var restart = dataGridView1[e.ColumnIndex, e.RowIndex].Value.ToString() != folderBrowserDialog1.SelectedPath;
+                        var restart = dataGridView1[e.ColumnIndex, e.RowIndex].Value?.ToString() != folderBrowserDialog1?.SelectedPath;
                         dataGridView1[e.ColumnIndex, e.RowIndex].Value = folderBrowserDialog1.SelectedPath;
                         MainProcess.Config.FilePaths = (List<PathItem>)dataGridView1.DataSource;
                         RefreshGridView(restart);
@@ -148,8 +148,8 @@ namespace FileMonitor
 
         private void RefreshGridView(bool restart)
         {
-            if (restart)
-                MainProcess.InitWatchers();
+            //if (restart)
+                //MainProcess.InitWatchers();
             dataGridView1.DataSource = null;
             dataGridView1.DataSource = MainProcess.Config.FilePaths;
         }
