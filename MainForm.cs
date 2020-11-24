@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
@@ -13,13 +12,13 @@ namespace FileMonitor
         public MainForm()
         {
             InitializeComponent();
+            Icon = notifyIcon1.Icon = Resource.icon;
+            notifyIcon1.Visible = true;
             Program.FormsContainer.Add(this);
         }
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            Icon = notifyIcon1.Icon = Resource.icon;
-
             if (MainProcess.Config.WindowPos.ContainsKey(Name))
             {
                 Top = MainProcess.Config.WindowPos[Name].Top;
@@ -65,12 +64,11 @@ namespace FileMonitor
         private void MainForm_SizeChanged(object sender, EventArgs e)
         {
             ShowInTaskbar = false;
-            notifyIcon1.Visible = true;
         }
 
         private void notifyIcon1_MouseClick(object sender, MouseEventArgs e)
         {
-            if (WindowState == FormWindowState.Minimized)
+            if (e.Button == MouseButtons.Left && WindowState == FormWindowState.Minimized)
             {
                 //还原窗体显示 
                 WindowState = FormWindowState.Normal;
@@ -80,6 +78,10 @@ namespace FileMonitor
                 this.ShowInTaskbar = true;
                 //托盘区图标隐藏 
                 //notifyIcon1.Visible = false;
+            }
+            else if (e.Button == MouseButtons.Right)
+            {
+                contextMenuStrip2.Show(MousePosition.X, MousePosition.Y);
             }
         }
 
@@ -122,34 +124,16 @@ namespace FileMonitor
                                 return;
                             }
                         }
-                        var restart = dataGridView1[e.ColumnIndex, e.RowIndex].Value?.ToString() != folderBrowserDialog1?.SelectedPath;
                         dataGridView1[e.ColumnIndex, e.RowIndex].Value = folderBrowserDialog1.SelectedPath;
                         MainProcess.Config.FilePaths = (List<PathItem>)dataGridView1.DataSource;
-                        RefreshGridView(restart);
+                        RefreshGridView();
                     }
                 }
             }
         }
 
-        /// <summary>
-        /// 响应右键的删除事件
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void contextMenuStrip1_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        private void RefreshGridView()
         {
-            if (e.ClickedItem.Name == "DeleteItem" && dataGridView1.SelectedRows.Count > 0)
-            {
-                var selectIndex = dataGridView1.SelectedRows[0].Index;
-                MainProcess.Config.FilePaths.RemoveAt(selectIndex);
-                RefreshGridView(true);
-            }
-        }
-
-        private void RefreshGridView(bool restart)
-        {
-            //if (restart)
-                //MainProcess.InitWatchers();
             dataGridView1.DataSource = null;
             dataGridView1.DataSource = MainProcess.Config.FilePaths;
         }
@@ -177,7 +161,22 @@ namespace FileMonitor
                     }
                 }
 
-                RefreshGridView(true);
+                RefreshGridView();
+            }
+        }
+
+        private void Exit_Click(object sender, EventArgs e)
+        {
+            Application.Exit();
+        }
+
+        private void DeleteItem_Click(object sender, EventArgs e)
+        {
+            if (dataGridView1.SelectedRows.Count > 0)
+            {
+                var selectIndex = dataGridView1.SelectedRows[0].Index;
+                MainProcess.Config.FilePaths.RemoveAt(selectIndex);
+                RefreshGridView();
             }
         }
     }
