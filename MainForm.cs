@@ -35,6 +35,8 @@ namespace FileMonitor
                 notifyIcon1.ShowBalloonTip(5000, "存档监控", "已经在监控游戏存档了", ToolTipIcon.Info);
             }
 
+            MainProcess.InitWatchers();
+
             dataGridView1.DataSource = MainProcess.Config.FilePaths;
             dataGridView1.DefaultCellStyle.SelectionBackColor = Color.White;
             dataGridView1.DefaultCellStyle.SelectionForeColor = Color.Black;
@@ -111,9 +113,19 @@ namespace FileMonitor
                 {
                     if (folderBrowserDialog1.ShowDialog() == DialogResult.OK)
                     {
+                        if (e.ColumnIndex == 1)
+                        {
+                            var datas = (List<PathItem>)dataGridView1.DataSource;
+                            if (datas.Exists(t => datas.IndexOf(t) != e.RowIndex && t.OriginPath == folderBrowserDialog1.SelectedPath))
+                            {
+                                MessageBox.Show("不能对同一路径进行重复监控");
+                                return;
+                            }
+                        }
+                        var restart = dataGridView1[e.ColumnIndex, e.RowIndex].Value.ToString() != folderBrowserDialog1.SelectedPath;
                         dataGridView1[e.ColumnIndex, e.RowIndex].Value = folderBrowserDialog1.SelectedPath;
                         MainProcess.Config.FilePaths = (List<PathItem>)dataGridView1.DataSource;
-                        RefreshGridView();
+                        RefreshGridView(restart);
                     }
                 }
             }
@@ -130,12 +142,14 @@ namespace FileMonitor
             {
                 var selectIndex = dataGridView1.SelectedRows[0].Index;
                 MainProcess.Config.FilePaths.RemoveAt(selectIndex);
-                RefreshGridView();
+                RefreshGridView(true);
             }
         }
 
-        private void RefreshGridView()
+        private void RefreshGridView(bool restart)
         {
+            if (restart)
+                MainProcess.InitWatchers();
             dataGridView1.DataSource = null;
             dataGridView1.DataSource = MainProcess.Config.FilePaths;
         }
@@ -145,26 +159,26 @@ namespace FileMonitor
             if (e.ColumnIndex == 0 && e.RowIndex != -1)
             {
                 var item = MainProcess.Config.FilePaths[e.RowIndex];
-                var value = (bool)dataGridView1.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
-                if (value)
-                    item.Started = false;
+
+                if (item.Started)
+                {
+                    MainProcess.Dispose(e.RowIndex);
+                }
                 else
                 {
                     if (PathRegex.IsMatch(item.OriginPath ?? "") && PathRegex.IsMatch(item.BackupPath ?? ""))
-                        item.Started = true;
+                    {
+                        MainProcess.InitWatcher(e.RowIndex);
+                    }
                     else
                     {
                         MessageBox.Show("请选择正确的原路径和备份路径");
+                        return;
                     }
                 }
 
-                RefreshGridView();
+                RefreshGridView(true);
             }
-        }
-
-        private void dataGridView1_CellValueChanged(object sender, DataGridViewCellEventArgs e)
-        {
-            MainProcess.InitWatchers();
         }
     }
 }
