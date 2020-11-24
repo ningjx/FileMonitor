@@ -9,6 +9,7 @@ namespace FileMonitor
     public partial class MainForm : Form
     {
         private readonly Regex PathRegex = new Regex(@"^[A-Z]:\\(.+?\\)*.*$");
+
         public MainForm()
         {
             InitializeComponent();
@@ -21,8 +22,8 @@ namespace FileMonitor
         {
             if (MainProcess.Config.WindowPos.ContainsKey(Name))
             {
-                Top = MainProcess.Config.WindowPos[Name].Top;
-                Left = MainProcess.Config.WindowPos[Name].Left;
+                Top = MainProcess.Config.WindowPos[Name].Top < 0 ? 100 : MainProcess.Config.WindowPos[Name].Top;
+                Left = MainProcess.Config.WindowPos[Name].Left < 0 ? 100 : MainProcess.Config.WindowPos[Name].Left;
                 Height = MainProcess.Config.WindowPos[Name].Height;
                 Width = MainProcess.Config.WindowPos[Name].Width;
             }
@@ -70,33 +71,13 @@ namespace FileMonitor
         {
             if (e.Button == MouseButtons.Left && WindowState == FormWindowState.Minimized)
             {
-                //还原窗体显示 
                 WindowState = FormWindowState.Normal;
-                //激活窗体并给予它焦点 
-                this.Activate();
-                //任务栏区显示图标 
-                this.ShowInTaskbar = true;
-                //托盘区图标隐藏 
-                //notifyIcon1.Visible = false;
+                Activate();
+                ShowInTaskbar = true;
             }
             else if (e.Button == MouseButtons.Right)
             {
                 contextMenuStrip2.Show(MousePosition.X, MousePosition.Y);
-            }
-        }
-
-        private void notifyIcon1_DoubleClick(object sender, EventArgs e)
-        {
-            if (WindowState == FormWindowState.Minimized)
-            {
-                //还原窗体显示 
-                WindowState = FormWindowState.Normal;
-                //激活窗体并给予它焦点 
-                this.Activate();
-                //任务栏区显示图标 
-                this.ShowInTaskbar = true;
-                //托盘区图标隐藏 
-                //notifyIcon1.Visible = false;
             }
         }
 

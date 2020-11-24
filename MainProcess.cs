@@ -16,6 +16,7 @@ namespace FileMonitor
         public static Config Config = new Config();
 
         private static List<FileSystemWatcher> Watchers = new List<FileSystemWatcher>();
+
         static MainProcess()
         {
             var configStr = FileHelper.Read(Config.ConfigPath);
@@ -36,9 +37,6 @@ namespace FileMonitor
             FileHelper.Write(Config.ConfigPath, JsonConvert.SerializeObject(Config));
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public static void InitWatchers()
         {
             Watchers.ForEach(t => t.Dispose());
@@ -123,11 +121,6 @@ namespace FileMonitor
             }
         }
 
-        /// <summary>
-        /// 当文件夹修改时，读取所有文件
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private static void Watcher_Changed(object sender, FileSystemEventArgs e)
         {
             try
