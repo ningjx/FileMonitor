@@ -35,17 +35,17 @@
             this.notifyIcon1 = new System.Windows.Forms.NotifyIcon(this.components);
             this.dataGridView1 = new System.Windows.Forms.DataGridView();
             this.Started = new System.Windows.Forms.DataGridViewCheckBoxColumn();
-            this.originPathDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.backupPathDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.pathItemBindingSource1 = new System.Windows.Forms.BindingSource(this.components);
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.DeleteItem = new System.Windows.Forms.ToolStripMenuItem();
             this.contextMenuStrip2 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.Exit = new System.Windows.Forms.ToolStripMenuItem();
+            this.originPathDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.backupPathDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.pathItemBindingSource1 = new System.Windows.Forms.BindingSource(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pathItemBindingSource1)).BeginInit();
             this.contextMenuStrip1.SuspendLayout();
             this.contextMenuStrip2.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pathItemBindingSource1)).BeginInit();
             this.SuspendLayout();
             // 
             // checkBox1
@@ -98,6 +98,34 @@
             this.Started.TrueValue = "true";
             this.Started.Width = 50;
             // 
+            // contextMenuStrip1
+            // 
+            this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.DeleteItem});
+            this.contextMenuStrip1.Name = "contextMenuStrip1";
+            this.contextMenuStrip1.Size = new System.Drawing.Size(125, 26);
+            // 
+            // DeleteItem
+            // 
+            this.DeleteItem.Name = "DeleteItem";
+            this.DeleteItem.Size = new System.Drawing.Size(124, 22);
+            this.DeleteItem.Text = "删除该项";
+            this.DeleteItem.Click += new System.EventHandler(this.DeleteItem_Click);
+            // 
+            // contextMenuStrip2
+            // 
+            this.contextMenuStrip2.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.Exit});
+            this.contextMenuStrip2.Name = "contextMenuStrip2";
+            this.contextMenuStrip2.Size = new System.Drawing.Size(101, 26);
+            // 
+            // Exit
+            // 
+            this.Exit.Name = "Exit";
+            this.Exit.Size = new System.Drawing.Size(100, 22);
+            this.Exit.Text = "退出";
+            this.Exit.Click += new System.EventHandler(this.Exit_Click);
+            // 
             // originPathDataGridViewTextBoxColumn
             // 
             this.originPathDataGridViewTextBoxColumn.DataPropertyName = "OriginPath";
@@ -120,34 +148,6 @@
             // 
             this.pathItemBindingSource1.DataSource = typeof(FileMonitor.PathItem);
             // 
-            // contextMenuStrip1
-            // 
-            this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.DeleteItem});
-            this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(181, 48);
-            // 
-            // DeleteItem
-            // 
-            this.DeleteItem.Name = "DeleteItem";
-            this.DeleteItem.Size = new System.Drawing.Size(180, 22);
-            this.DeleteItem.Text = "删除该项";
-            this.DeleteItem.Click += new System.EventHandler(this.DeleteItem_Click);
-            // 
-            // contextMenuStrip2
-            // 
-            this.contextMenuStrip2.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.Exit});
-            this.contextMenuStrip2.Name = "contextMenuStrip2";
-            this.contextMenuStrip2.Size = new System.Drawing.Size(101, 26);
-            // 
-            // Exit
-            // 
-            this.Exit.Name = "Exit";
-            this.Exit.Size = new System.Drawing.Size(180, 22);
-            this.Exit.Text = "退出";
-            this.Exit.Click += new System.EventHandler(this.Exit_Click);
-            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -157,13 +157,13 @@
             this.Controls.Add(this.checkBox1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "MainForm";
-            this.Text = "游戏存档监视器";
+            this.Text = "文件监视器";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.SizeChanged += new System.EventHandler(this.MainForm_SizeChanged);
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pathItemBindingSource1)).EndInit();
             this.contextMenuStrip1.ResumeLayout(false);
             this.contextMenuStrip2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.pathItemBindingSource1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
